@@ -1,8 +1,8 @@
 import { defineConfig } from 'dumi';
 
 export default defineConfig({
-  base: '/FED/repository/',
-  publicPath: '/FED/repository/',
+  base: '/FED/',
+  publicPath: '/FED/',
   exportStatic: {},
   title: 'FED Repository',
   favicon:
