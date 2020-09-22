@@ -1,6 +1,8 @@
 ---
 title: Commit
-order: 2
+order: 6
+group:
+  title: Git规范
 ---
 
 # Git 提交规范

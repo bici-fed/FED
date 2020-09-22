@@ -1,6 +1,6 @@
 ---
 title: ES
-order: 2
+order: 4
 ---
 
 # ES 风格指南
