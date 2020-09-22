@@ -8,9 +8,213 @@ group:
 
 # JavaScript 编码规范
 
-## 前言
+本文档基于 [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)，目标是使团队的 JavaScript 代码风格保持一致，容易被理解和维护。
 
-本文档的目标
+## eslint config bicitech
+
+团队 `eslint` 配置工具 [eslint-config-bicitech](https://www.npmjs.com/package/eslint-config-bicitech) 基于此文档，在 [Airbnb](https://www.npmjs.com/package/eslint-config-airbnb), [Prettier](https://www.npmjs.com/package/eslint-config-prettier) 等基础下关闭了以下规则。
+
+### jsx-a11y/anchor-is-valid
+
+规定所有的 `<a>` 标签链接均是有效的。
+
+**规则被关闭**，因为经常会写如下代码，把 `<a>` 当作按钮使用：
+
+```js
+<a href="javascript:;" onClick={this.handleClick}>
+  {text}
+</a>
+```
+
+### jsx-a11y/click-events-have-key-events
+
+规定所有绑定了 `onClick` 事件的元素，都必须绑定 `onKeyUp, onKeyDown, onKeyPress` 事件之一，例如:
+
+```js
+<div onClick={() => {}} onKeyDown={this.handleKeyDown} />
+<div onClick={() => {}} onKeyUp={this.handleKeyUp} />
+<div onClick={() => {}} onKeyPress={this.handleKeyPress} />
+```
+
+**规则被关闭**，因为我们的交互场景一般无需考虑键盘操作。
+
+### jsx-a11y/mouse-events-have-key-events
+
+规定所有绑定了 `onMouseOver, onMouseOut` 事件的元素，都必须绑定 `onFocus, onBlur` 事件之一，例如:
+
+```js
+<div onMouseOver={() => {}} onFocus={this.onFocus} />
+<div onMouseOut={() => {}} onBlur={this.onFocus} />
+```
+
+**规则被关闭**，因为我们的交互场景一般无需考虑键盘操作。
+
+### jsx-a11y/no-static-element-interactions
+
+规定 HTML 中静态元素（如 `<div>`, `<span>` 等）不应该绑定事件响应函数（如 onClick, onKeyUp）等。
+
+**规则被关闭**，因为经常会写如下代码：
+
+```js
+<div onClick={this.onClick}>{text}</div>
+```
+
+### comma-dangle
+
+规定对象属性、数组元素等最后一个加上末尾逗号。
+
+**规则修改为 `["error", "always-multiline"]`**。多行时必须加上，单行时不应加上，例如：
+
+```js
+var foo = {
+  bar: 'baz',
+  qux: 'quux',
+};
+
+var foo = { bar: 'baz', qux: 'quux' };
+var arr = [1, 2];
+
+var arr = [1, 2];
+
+var arr = [1, 2];
+
+foo({
+  bar: 'baz',
+  qux: 'quux',
+});
+```
+
+### react/prop-types
+
+在 React 中，规定每一个组件都应该声明 PropTypes。
+
+**规则被关闭**，仅在核心组件声明 PropTypes 即可。
+
+### react/jsx-filename-extension
+
+在 React 中，规定 JSX 代码只能在后缀名为 `.jsx` 的文件中。
+
+**规则被关闭**，因为有时会在 `.js` 或自定义格式的文件中使用 JSX 代码。
+
+### react/state-in-constructor
+
+规定 React 类组件中，state 必须声明在 constructor 中。
+
+**规则被关闭**，允许下面的写法：
+
+```js
+class Foo {
+  constructor() {}
+
+  state = {};
+}
+```
+
+### react/forbid-prop-types
+
+在 React 中，规定在使用 PropTypes 时，不允许使用 any, array, object 类型。
+
+**规则被关闭**，使用 array 等较为常见。
+
+### react/destructuring-assignment
+
+在 React 中，规定向 props, state, context 赋值时，应使用解构，例如：
+
+```js
+// Bad
+const MyComponent = props => {
+  return <div id={props.id} />;
+};
+
+// Good
+const MyComponent = props => {
+  const { id } = props;
+  return <div id={id} />;
+};
+```
+
+**规则被关闭**，因为只需使用一次时无需解构，节省代码量。
+
+### no-plusplus
+
+规定不允许使用 ++ 自增运算符。
+
+**规则被关闭**，因为经常会写如下代码：
+
+```js
+for (i = 0; i < 10; i++) {
+  doSomething();
+}
+```
+
+### no-underscore-dangle
+
+规定不允许在变量名中出现下划线。
+
+**规则被关闭**，因为这种用法很常见。
+
+### class-methods-use-this
+
+当类的方法中没有使用 this 时，规定该方法应设为静态方法，且调用方式应该变为 MyClass.callStaticMethod()。例如：
+
+```js
+class Hello {
+  static sayHello() {
+    console.log('Hello!');
+  }
+}
+
+Hello.sayHello();
+```
+
+**规则被关闭**，因为若该方法将来需要使用 this 时，所有的调用处均需发生更改。
+
+### import/no-unresolved
+
+规定不能引入本地找不到的模块。
+
+**规则被关闭**，因为该规则不能很好的适配 node 或者 webpack 外的模块系统，例如 fis。
+
+## 类型
+
+<a name="types--primitives"></a><a name="1.1"></a>
+
+- [1.1](#types--primitives) **原始类型**: 存取原始类型直接作用于值本身.
+
+  - `string`
+  - `number`
+  - `boolean`
+  - `null`
+  - `undefined`
+  - `symbol`
+
+  ```javascript
+  const foo = 1;
+  let bar = foo;
+
+  bar = 9;
+
+  console.log(foo, bar); // => 1, 9
+  ```
+
+  - Symbols 不能被完全 polyfill,所以不能用于无法被原生支持该特性的浏览器/环境.
+
+<a name="types--complex"></a><a name="1.2"></a>
+
+- [1.2](#types--complex) **复杂类型**: 访问复杂类型作用于值的引用.
+
+  - `object`
+  - `array`
+  - `function`
+
+  ```javascript
+  const foo = [1, 2];
+  const bar = foo;
+
+  bar[0] = 9;
+
+  console.log(foo[0], bar[0]); // => 9, 9
+  ```
 
 ## 引用
 
@@ -3388,142 +3592,6 @@ eslint rules: [`no-case-declarations`](http://eslint.org/docs/rules/no-case-decl
   }
   ```
 
-## 事件
-
-<a name="events--hash"></a><a name="25.1"></a>
-
-- [25.1](#events--hash) 当将数据和事件绑定时 (不论是 DOM 事件还是其他像 Backbone 一类的事件), 传递对象字面量(也叫摘要值)而不是原始值. 这会允许接下来的修改者不用查找和更新事件的每一个处理器就可以给事件添加更多的数据，不要使用下边的:
-
-  ```javascript
-  // bad
-  $(this).trigger('listingUpdated', listing.id);
-
-  ...
-
-  $(this).on('listingUpdated', (e, listingId) => {
-    // do something with listingId
-  });
-  ```
-
-  建议:
-
-  ```javascript
-  // good
-  $(this).trigger('listingUpdated', { listingId: listing.id });
-
-  ...
-
-  $(this).on('listingUpdated', (e, data) => {
-    // do something with data.listingId
-  });
-  ```
-
-## jQuery
-
-<a name="jquery--dollar-prefix"></a><a name="26.1"></a>
-
-- [26.1](#jquery--dollar-prefix) 以`$`为前缀命名 jQuery 对象变量. jscs: [`requireDollarBeforejQueryAssignment`](http://jscs.info/rule/requireDollarBeforejQueryAssignment)
-
-  ```javascript
-  // bad
-  const sidebar = $('.sidebar');
-
-  // good
-  const $sidebar = $('.sidebar');
-
-  // good
-  const $sidebarBtn = $('.sidebar-btn');
-  ```
-
-<a name="jquery--cache"></a><a name="26.2"></a>
-
-- [26.2](#jquery--cache) 缓存 jQuery 选择器的查询结果.
-
-  ```javascript
-  // bad
-  function setSidebar() {
-    $('.sidebar').hide();
-
-    // ...stuff...
-
-    $('.sidebar').css({
-      'background-color': 'pink',
-    });
-  }
-
-  // good
-  function setSidebar() {
-    const $sidebar = $('.sidebar');
-    $sidebar.hide();
-
-    // ...stuff...
-
-    $sidebar.css({
-      'background-color': 'pink',
-    });
-  }
-  ```
-
-<a name="jquery--queries"></a><a name="26.3"></a>
-
-- [26.3](#jquery--queries) DOM 查询使用后代选择器 `$('.sidebar ul')` 或者 父类 > 子类 `$('.sidebar > ul')`选择器. [jsPerf](http://jsperf.com/jquery-find-vs-context-sel/16)
-
-<a name="jquery--find"></a><a name="26.4"></a>
-
-- [26.4](#jquery--find) 局部 jQuery 对象查询使用 `find` .
-
-  ```javascript
-  // bad
-  $('ul', '.sidebar').hide();
-
-  // bad
-  $('.sidebar')
-    .find('ul')
-    .hide();
-
-  // good
-  $('.sidebar ul').hide();
-
-  // good
-  $('.sidebar > ul').hide();
-
-  // good
-  $sidebar.find('ul').hide();
-  ```
-
-## ECMAScript5 兼容性
-
-<a name="es5-compat--kangax"></a><a name="27.1"></a>
-
-- [27.1](#es5-compat--kangax) 参考 [Kangax](https://twitter.com/kangax/)'s ES5 [compatibility table](http://kangax.github.io/es5-compat-table/).
-
-## ECMAScript6+(ES2015+)风格
-
-<a name="es6-styles"></a><a name="28.1"></a>
-
-- [28.1](#es6-styles) 这是不同 ES6 特性的链接集合.
-
-1. [箭头函数](#arrow-functions)
-2. [类](#constructors)
-3. [对象简写](#es6-object-shorthand)
-4. [Object Concise](#es6-object-concise)
-5. [对象计算属性](#es6-computed-properties)
-6. [模板字符串](#es6-template-literals)
-7. [解构](#destructuring)
-8. [默认参数](#es6-default-parameters)
-9. [剩余运算符](#es6-rest)
-10. [数组展开](#es6-array-spreads)
-11. [Let 和 Const](#references)
-12. [求幂运算符](#es2016-properties--exponentiation-operator)
-13. [迭代器和生成器](#iterators-and-generators)
-14. [模块](#modules)
-
-<a name="tc39-proposals"></a>
-
-- [28.2](#tc39-proposals) 不要使用[TC39 proposals](https://github.com/tc39/proposals)还未实现的 stage3 的功能.
-
-  > 原因:[未最终确定](https://tc39.github.io/process-document/), and they are subject to change or to be withdrawn entirely 会随着改变及整个废弃而被影响. 我们想要使用 JavaScript,而草案还不是 JavaScript.
-
 ## 标准库
 
 [标准库](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects)包含功能有问题但由于遗留原因保留下来的功能.
@@ -3562,41 +3630,3 @@ eslint rules: [`no-case-declarations`](http://eslint.org/docs/rules/no-case-decl
   Number.isFinite('2e3'); // false
   Number.isFinite(parseInt('2e3', 10)); // true
   ```
-
-## 测试
-
-<a name="testing--yup"></a><a name="30.1"></a>
-
-- [30.1](#testing--yup) **当然需要**
-
-  ```javascript
-  function foo() {
-    return true;
-  }
-  ```
-
-<a name="testing--for-real"></a><a name="30.2"></a>
-
-- [30.2](#testing--for-real) **不要这么做，很严重**:
-- 不论你用哪一个测试框架，都应该写测试用例!
-- 尽力写一些简洁的函数, 使改动数据的部分最小化.
-- 小心使用 stubs 和 mocks - 它们会使测试变得脆弱.
-- 我们在 Airbnb 中主要使用 [`mocha`](https://www.npmjs.com/package/mocha). [`tape`](https://www.npmjs.com/package/tape) 有时也用于小的独立模块.
-- 100%的测试覆盖率是需要努力达成的目标，即使这是不切实际的.
-- 无论何时修复 bug, _写回归测试_. 没有回归测试的 bug 修复几乎会在将在再次出现.
-
-## 性能
-
-- [On Layout & Web Performance](http://www.kellegous.com/j/2013/01/26/layout-performance/)
-- [String vs Array Concat](http://jsperf.com/string-vs-array-concat/2)
-- [Try/Catch Cost In a Loop](http://jsperf.com/try-catch-in-loop-cost)
-- [Bang Function](http://jsperf.com/bang-function)
-- [jQuery Find vs Context, Selector](http://jsperf.com/jquery-find-vs-context-sel/13)
-- [innerHTML vs textContent for script text](http://jsperf.com/innerhtml-vs-textcontent-for-script-text)
-- [Long String Concatenation](http://jsperf.com/ya-string-concat)
-- [Are Javascript functions like `map()`, `reduce()`, and `filter()` optimized for traversing arrays?](https://www.quora.com/JavaScript-programming-language-Are-Javascript-functions-like-map-reduce-and-filter-already-optimized-for-traversing-array/answer/Quildreen-Motta)
-- Loading...
-
-**阅读**
-
-- [Standard ECMA-262](http://www.ecma-international.org/ecma-262/6.0/index.html)
