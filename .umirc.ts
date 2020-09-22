@@ -15,5 +15,6 @@ export default defineConfig({
     null,
     { title: '设计规范', path: 'https://bici-fed.github.io/bici-design' },
     { title: '组件库', path: 'https://bici-fed.github.io/bici-design' },
+    { title: 'Github', path: 'https://github.com/bici-fed' },
   ],
 });
